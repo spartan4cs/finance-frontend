@@ -14,13 +14,12 @@ export default function AccountList() {
   }, []);
 
   const handleDelete = async (id: number) => {
-    const confirmed = window.confirm("Are you sure you want to delete?");
-    if (!confirmed) return;
-
-    await deleteAccount(id);
-
-    // Remove deleted account from UI immediately
-    setAccounts((prev) => prev.filter((acc) => acc.id !== id));
+    try {
+      await deleteAccount(id);
+      getAccounts().then((res) => setAccounts(res.data));
+    } catch {
+      alert("Delete failed");
+    }
   };
 
   if (loading) return <p>Loading accounts...</p>;
