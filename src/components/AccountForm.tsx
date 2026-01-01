@@ -1,63 +1,78 @@
-import { useState } from "react";
-import { createAccount } from "../api/accounts.api";
+import { useEffect, useState } from "react";
+import { createAccount, updateAccount } from "../api/accounts.api";
+import type { Account } from "../types/account";
 
-// Props definition
-// onAccountCreated is a callback sent from parent
+
 interface Props {
-  onAccountCreated: () => void;
+  accountToEdit?: Account | null;
+  onSuccess: () => void;
 }
 
-export default function AccountForm({ onAccountCreated }: Props) {
-
-  // Form state (controlled inputs)
+export default function AccountForm({ accountToEdit, onSuccess }: Props) {
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [balance, setBalance] = useState<number>(0);
 
+  // When accountToEdit changes, pre-fill form
+  useEffect(() => {
+    if (accountToEdit) {
+      setName(accountToEdit.name);
+      setType(accountToEdit.type);
+      setBalance(accountToEdit.balance);
+    }
+  }, [accountToEdit]);
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // prevent page reload
+    e.preventDefault();
 
-    await createAccount({
-      name,
-      type,
-      balance
-    });
+    if (accountToEdit) {
+      // UPDATE
+      await updateAccount(accountToEdit.id, {
+        name,
+        type,
+        balance,
+      });
+    } else {
+      // CREATE
+      await createAccount({
+        name,
+        type,
+        balance,
+      });
+    }
 
-    // Reset form after success
+    // Reset form
     setName("");
     setType("");
     setBalance(0);
 
-    // Notify parent to refresh account list
-    onAccountCreated();
+    onSuccess();
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h3>Create Account</h3>
+      <h3>{accountToEdit ? "Edit Account" : "Create Account"}</h3>
 
       <input
-        type="text"
-        placeholder="Account Name"
         value={name}
         onChange={(e) => setName(e.target.value)}
+        placeholder="Name"
       />
 
       <input
-        type="text"
-        placeholder="Account Type"
         value={type}
         onChange={(e) => setType(e.target.value)}
+        placeholder="Type"
       />
 
       <input
         type="number"
-        placeholder="Balance"
         value={balance}
         onChange={(e) => setBalance(Number(e.target.value))}
+        placeholder="Balance"
       />
 
-      <button type="submit">Create</button>
+      <button type="submit">{accountToEdit ? "Update" : "Create"}</button>
     </form>
   );
 }

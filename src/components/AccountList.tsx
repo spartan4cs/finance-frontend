@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { deleteAccount, getAccounts } from "../api/accounts.api";
 import type { Account } from "../types/account";
 
-export default function AccountList() {
+interface Props {
+  onEdit: (account: Account) => void;
+}
+
+export default function AccountList({ onEdit }: Props) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,6 +35,7 @@ export default function AccountList() {
         {accounts.map((acc) => (
           <li key={acc.id}>
             {acc.name} - {acc.type} - ${acc.balance}
+            <button onClick={() => onEdit(acc)}>Edit</button>
             <button onClick={() => handleDelete(acc.id)}>Delete</button>
           </li>
         ))}
