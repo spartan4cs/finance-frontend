@@ -8,3 +8,17 @@ export interface Transaction {
   description?: string;
   createdAt: string;
 }
+
+export interface CreateTransactionRequest {
+  amount: number;
+  type: TransactionType;
+  accountId: number;
+  description?: string;
+}
+
+export interface UpdateTransactionRequest {
+  amount?: number;
+  type?: TransactionType;
+  accountId?: number;
+  description?: string;
+}
